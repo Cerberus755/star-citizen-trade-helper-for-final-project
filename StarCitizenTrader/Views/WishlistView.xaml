@@ -1,0 +1,222 @@
+<UserControl x:Class="StarCitizenTrader.Views.WishlistView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Foreground="White" Loaded="OnLoaded">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title & Actions -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock DockPanel.Dock="Left" Text="⭐ Wishlist" FontSize="22" FontWeight="Bold" 
+                       Foreground="#FFE94560"/>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Command="{Binding ShowAddFormCommand}" Style="{StaticResource AccentButton}"
+                        Content="➕ Add Item" Margin="0,0,8,0"/>
+                <Button Command="{Binding RefreshCommand}" Style="{StaticResource HeaderButton}"
+                        Content="🔄 Refresh"/>
+            </StackPanel>
+            <TextBlock/>
+        </DockPanel>
+
+        <!-- ═══ MAIN CONTENT ═══ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="320"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Wishlist Items -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,8,0">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Tracked Items" FontSize="14" FontWeight="SemiBold" 
+                               Margin="0,0,0,8"/>
+                    <DataGrid ItemsSource="{Binding WishlistItems}" 
+                              SelectedItem="{Binding SelectedItem}"
+                              AutoGenerateColumns="False" IsReadOnly="True"
+                              Style="{StaticResource ModernDataGrid}" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Item" Binding="{Binding ItemName}" Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontWeight" Value="Medium"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Looking To" Binding="{Binding OperationDisplay}" Width="110"/>
+                            <DataGridTextColumn Header="Price Range" Binding="{Binding PriceRangeDisplay}" Width="140">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#FF4FC3F7"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Matches" Binding="{Binding MatchCount}" Width="65"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding StatusDisplay}" Width="70"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+
+            <!-- Right Panel: Details / Price Comparison / Matches -->
+            <StackPanel Grid.Column="1">
+                <!-- Selected Item Details -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8"
+                        Visibility="{Binding SelectedItem, Converter={StaticResource NotNullToVisibility}}">
+                    <StackPanel DataContext="{Binding SelectedItem}">
+                        <TextBlock Text="{Binding ItemName}" FontSize="15" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <TextBlock Foreground="#99FFFFFF" FontSize="12">
+                            <Run Text="Operation: "/><Run Text="{Binding OperationDisplay, Mode=OneWay}" FontWeight="Medium"/>
+                        </TextBlock>
+                        <TextBlock Foreground="#FF4FC3F7" FontSize="14" FontWeight="Bold" Margin="0,4,0,0"
+                                   Text="{Binding PriceRangeDisplay}"/>
+                        <TextBlock Text="{Binding Notes}" Foreground="#AAFFFFFF" FontSize="11" TextWrapping="Wrap"
+                                   Margin="0,6,0,0" MaxHeight="50"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Button Command="{Binding DataContext.ToggleActiveCommand, 
+                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    Style="{StaticResource HeaderButton}" Content="⏸ Toggle Active" Margin="0,0,6,0"/>
+                            <Button Command="{Binding DataContext.RemoveItemCommand, 
+                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    Style="{StaticResource DangerButton}" Content="🗑 Remove"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Price Comparison -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8"
+                        Visibility="{Binding SelectedItem, Converter={StaticResource NotNullToVisibility}}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="💰 Price Comparison" FontSize="13" 
+                                   FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <ItemsControl ItemsSource="{Binding PriceComparisons}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#1AFFFFFF" CornerRadius="4" Padding="8,4" Margin="0,2">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock FontSize="11">
+                                                    <Run Text="{Binding Operation, Mode=OneWay}" FontWeight="Medium"/>
+                                                    <Run Text=" • Q"/>
+                                                    <Run Text="{Binding QualityTier, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                                <TextBlock FontSize="12" FontWeight="Bold" Foreground="#FF4FC3F7">
+                                                    <Run Text="{Binding PriceAvg, StringFormat='{}{0:N0}', Mode=OneWay}"/>
+                                                    <Run Text=" "/>
+                                                    <Run Text="{Binding Currency, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock FontSize="9" Foreground="#99FFFFFF" HorizontalAlignment="Right">
+                                                    <Run Text="7d: "/>
+                                                    <Run Text="{Binding PriceAvgWeek, StringFormat='{}{0:N0}', Mode=OneWay}"/>
+                                                    <Run Text=" / 30d: "/>
+                                                    <Run Text="{Binding PriceAvgMonth, StringFormat='{}{0:N0}', Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
+                </Border>
+
+                <!-- Recent Matches -->
+                <Border Style="{StaticResource CardStyle}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="🔔 Recent Matches" FontSize="13" 
+                                   FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <ItemsControl ItemsSource="{Binding RecentMatches}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#1AE94560" CornerRadius="4" Padding="8,4" Margin="0,2">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding ListingTitle}" FontSize="11" FontWeight="Medium"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock FontSize="10" Foreground="#CCFFFFFF">
+                                                <Run Text="{Binding Price, StringFormat='{}{0:N0}', Mode=OneWay}"/>
+                                                <Run Text=" "/>
+                                                <Run Text="{Binding Currency, Mode=OneWay}"/>
+                                                <Run Text=" • "/>
+                                                <Run Text="{Binding SellerUsername, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- ═══ ADD ITEM FORM (overlay) ═══ -->
+        <Border Grid.Row="0" Grid.RowSpan="3" 
+                Visibility="{Binding IsAddingItem, Converter={StaticResource BoolVis}}"
+                Background="#CC000000">
+            <Border Style="{StaticResource CardStyle}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Padding="24" MinWidth="420">
+                <StackPanel>
+                    <TextBlock Text="Add to Wishlist" FontSize="18" FontWeight="Bold" 
+                               Foreground="#FFE94560" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="Item Name *" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding NewItemName, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource ModernTextBox}" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Item ID (optional — for exact matching)" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding NewItemId, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource ModernTextBox}" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Looking to:" Style="{StaticResource FieldLabel}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton Content="Buy" GroupName="Op" Foreground="White" Margin="0,0,16,0"
+                                     IsChecked="{Binding NewOperation, Converter={StaticResource EqualConv}, ConverterParameter=buy}"/>
+                        <RadioButton Content="Sell" GroupName="Op" Foreground="White"
+                                     IsChecked="{Binding NewOperation, Converter={StaticResource EqualConv}, ConverterParameter=sell}"/>
+                    </StackPanel>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Min Price" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding NewMinPrice, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource ModernTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Max Price" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding NewMaxPrice, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource ModernTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Notes (optional)" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding NewNotes, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource ModernTextBox}" Height="50"
+                             TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,16"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Command="{Binding CancelAddCommand}" Style="{StaticResource HeaderButton}"
+                                Content="Cancel" Margin="0,0,8,0"/>
+                        <Button Command="{Binding AddItemCommand}" Style="{StaticResource AccentButton}"
+                                Content="✅ Add to Wishlist"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

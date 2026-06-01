@@ -1,0 +1,113 @@
+<UserControl x:Class="StarCitizenTrader.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Foreground="White">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="700">
+            <TextBlock Text="⚙️ Settings" FontSize="22" FontWeight="Bold" 
+                       Foreground="#FFE94560" Margin="0,0,0,16"/>
+
+            <!-- ═══ API CREDENTIALS ═══ -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="🔑 API Credentials" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    <TextBlock Text="Get your API key from https://uexcorp.space/api/apps" 
+                               Foreground="#99FFFFFF" FontSize="11" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Bearer Token (API Key)" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding BearerToken, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource ModernTextBox}" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Secret Key (from your UEX profile)" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding SecretKey, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Command="{Binding TestConnectionCommand}" Style="{StaticResource AccentButton}"
+                                Content="🧪 Test Connection" Margin="0,0,12,0"
+                                IsEnabled="{Binding IsTesting, Converter={StaticResource InvBool}}"/>
+                        <TextBlock Text="{Binding ConnectionStatus}" VerticalAlignment="Center" FontSize="12"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ POLLING SETTINGS ═══ -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="🔄 Data Refresh" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                    <CheckBox Content="Enable automatic refresh" IsChecked="{Binding EnableAutoRefresh}"
+                              Foreground="White" Margin="0,0,0,10"/>
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Listings Interval (sec)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding ListingsInterval}" Style="{StaticResource ModernTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Trends Interval (sec)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding TrendsInterval}" Style="{StaticResource ModernTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Wishlist Check (sec)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding WishlistInterval}" Style="{StaticResource ModernTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ NOTIFICATION SETTINGS ═══ -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="🔔 Notifications" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                    <CheckBox Content="Enable in-app notifications" IsChecked="{Binding EnableInAppNotifs}"
+                              Foreground="White" Margin="0,0,0,8"/>
+                    <CheckBox Content="Enable Windows toast notifications" IsChecked="{Binding EnableToastNotifs}"
+                              Foreground="White" Margin="0,0,0,8"/>
+                    <CheckBox Content="Enable wishlist match alerts" IsChecked="{Binding EnableWishlistAlerts}"
+                              Foreground="White"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ SAVE ═══ -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <Button Command="{Binding SaveSettingsCommand}" Style="{StaticResource AccentButton}"
+                        Content="💾 Save Settings" Margin="0,0,12,0"/>
+                <Button Command="{Binding ResetDefaultsCommand}" Style="{StaticResource HeaderButton}"
+                        Content="↩ Reset Defaults" Margin="0,0,12,0"/>
+                <TextBlock Text="{Binding SaveStatus}" VerticalAlignment="Center" FontSize="12"/>
+            </StackPanel>
+
+            <!-- ═══ ABOUT ═══ -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="About" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <TextBlock Foreground="#99FFFFFF" FontSize="12" TextWrapping="Wrap">
+                        <Run Text="Star Citizen Trader v1.0.0" FontWeight="Medium" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="UEX Marketplace Trading Assistant"/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="Uses UEX Corp API 2.0 — uexcorp.space"/>
+                        <LineBreak/>
+                        <Run Text="Star Citizen is a trademark of Cloud Imperium Games."/>
+                        <LineBreak/>
+                        <Run Text="UEX is a community tool not affiliated with CIG."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="API Rate Limit: 120 requests/minute"/>
+                        <LineBreak/>
+                        <Run Text="Data is community-sourced and may not reflect live servers."/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

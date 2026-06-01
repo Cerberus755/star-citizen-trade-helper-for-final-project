@@ -1,0 +1,149 @@
+<UserControl x:Class="StarCitizenTrader.Views.ListingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:StarCitizenTrader.Converters"
+             Foreground="White">
+
+    <UserControl.Resources>
+        <conv:UnixTimestampConverter x:Key="TimestampFmt"/>
+        <conv:OperationColorConverter x:Key="OpColor"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title & Count -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock DockPanel.Dock="Left" Text="Active Listings" FontSize="22" FontWeight="Bold" 
+                       Foreground="#FFE94560"/>
+            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Foreground="#99FFFFFF">
+                <Run Text="{Binding ListingCount, Mode=OneWay}"/>
+                <Run Text=" listings"/>
+            </TextBlock>
+            <TextBlock/>
+        </DockPanel>
+
+        <!-- ═══ FILTERS BAR ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="12,8" Margin="0,0,0,12">
+            <WrapPanel>
+                <!-- Search -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                    <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource ModernTextBox}" Width="250"
+                             Tag="Search listings, users, locations..."/>
+                </StackPanel>
+
+                <!-- Operation Filter -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                    <TextBlock Text="Type:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#CCFFFFFF"/>
+                    <ComboBox ItemsSource="{Binding OperationFilters}" 
+                              SelectedItem="{Binding FilterOperation}"
+                              Style="{StaticResource ModernComboBox}" Width="90"/>
+                </StackPanel>
+
+                <!-- Sort -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                    <TextBlock Text="Sort:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#CCFFFFFF"/>
+                    <ComboBox ItemsSource="{Binding SortOptions}" 
+                              SelectedItem="{Binding SortProperty}"
+                              Style="{StaticResource ModernComboBox}" Width="110"/>
+                </StackPanel>
+
+                <!-- Add to Wishlist -->
+                <Button Command="{Binding AddToWishlistCommand}" Style="{StaticResource AccentButton}"
+                        Content="⭐ Add to Wishlist" Margin="0,0,0,0"
+                        IsEnabled="{Binding SelectedListing, Converter={StaticResource NotNullToBool}}"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- ═══ LISTINGS DATA GRID ═══ -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding ListingsView}" 
+                  SelectedItem="{Binding SelectedListing}"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  Style="{StaticResource ModernDataGrid}"
+                  CanUserSortColumns="True" SelectionMode="Single"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Operation" Binding="{Binding OperationDisplay}" Width="85"/>
+                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="*" MinWidth="180">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontWeight" Value="Medium"/>
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Price / Unit" Width="140">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="FormattedPricePerUnit"/>
+                    </DataGridTextColumn.Binding>
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Foreground" Value="#FF4FC3F7"/>
+                            <Setter Property="FontSize" Value="13"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Stock" Binding="{Binding StockDisplay}" Width="60"/>
+                <DataGridTextColumn Header="Seller" Binding="{Binding UserUsername}" Width="110"/>
+                <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="120">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="80"/>
+                <DataGridTextColumn Header="Availability" Binding="{Binding Availability}" Width="95"/>
+                <DataGridTextColumn Header="Listed" Binding="{Binding DateAdded, Converter={StaticResource TimestampFmt}}" Width="130"/>
+                <DataGridTextColumn Header="Expires" Binding="{Binding DateExpiration, Converter={StaticResource TimestampFmt}}" Width="130"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- ═══ DETAIL PANEL ═══ -->
+        <Border Grid.Row="3" Style="{StaticResource CardStyle}" Padding="12" Margin="0,8,0,0"
+                Visibility="{Binding SelectedListing, Converter={StaticResource NotNullToVisibility}}">
+            <Grid DataContext="{Binding SelectedListing}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock FontSize="15" FontWeight="Bold" Text="{Binding Title}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding Description}" Foreground="#CCFFFFFF" FontSize="12"
+                               TextWrapping="Wrap" MaxHeight="40" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock FontSize="11" Foreground="#99FFFFFF" Margin="0,4,0,0">
+                        <Run Text="By "/>
+                        <Run Text="{Binding UserUsername, Mode=OneWay}" FontWeight="Medium" Foreground="#FFFFFFFF"/>
+                        <Run Text=" • "/>
+                        <Run Text="{Binding Location, Mode=OneWay}"/>
+                        <Run Text=" • Quality: "/>
+                        <Run Text="{Binding Quality, Mode=OneWay, TargetNullValue='N/A'}"/>
+                        <Run Text=" • Durability: "/>
+                        <Run Text="{Binding Durability, Mode=OneWay, TargetNullValue='N/A'}"/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <TextBlock Text="{Binding FormattedPricePerUnit}" FontSize="20" FontWeight="Bold"
+                               Foreground="#FF4FC3F7" HorizontalAlignment="Right"/>
+                    <TextBlock FontSize="11" Foreground="#99FFFFFF" HorizontalAlignment="Right"
+                               Visibility="{Binding HasPriceChanged, Converter={StaticResource BoolVis}}">
+                        <Run Text="was "/>
+                        <Run Text="{Binding PriceOld, StringFormat='{}{0:N0}', Mode=OneWay}"/>
+                        <Run Text=" ("/>
+                        <Run Text="{Binding PriceChangePercent, StringFormat='{}{0:+0.0;-0.0}%', Mode=OneWay}"/>
+                        <Run Text=")"/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
